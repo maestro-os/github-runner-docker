@@ -22,6 +22,7 @@ WORKDIR /home/user/runner
 # Install Rust
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/home/user/.cargo/bin:${PATH}"
+RUN cargo install mdbook
 
 # Build health probe
 RUN mkdir /home/user/runner/health-probe-build
