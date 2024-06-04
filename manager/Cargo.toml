@@ -1,11 +1,16 @@
 [package]
-name = "health-probe"
+name = "manager"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+anyhow = "1.0.86"
 axum = "0.7.5"
+envy = "0.4.2"
+reqwest = { version = "0.12.4", features = ["json"] }
+serde = { version = "1.0.203", features = ["derive"] }
 tokio = { version = "1.38.0", features = ["rt-multi-thread"] }
+tracing = "0.1.40"
 
 [profile.release]
 lto = true
