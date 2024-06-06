@@ -3,6 +3,7 @@ use anyhow::Result;
 use axum::routing::get;
 use axum::Router;
 use serde::Deserialize;
+use std::env;
 use std::process::exit;
 use std::process::Stdio;
 use tokio::io::AsyncWriteExt;
@@ -46,6 +47,8 @@ async fn launch_runner(config: &Config) -> Result<()> {
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
+    env::set_var("RUST_LOG", "info");
+    tracing_subscriber::fmt::init();
     let config: Config = envy::from_env().unwrap();
     let app = Router::new()
         .route("/", get(health))

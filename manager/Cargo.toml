@@ -11,6 +11,7 @@ reqwest = { version = "0.12.4", features = ["json"] }
 serde = { version = "1.0.203", features = ["derive"] }
 tokio = { version = "1.38.0", features = ["process", "rt-multi-thread"] }
 tracing = "0.1.40"
+tracing-subscriber = "*"
 
 [profile.release]
 lto = true
