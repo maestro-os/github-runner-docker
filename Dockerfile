@@ -35,6 +35,9 @@ RUN echo "9e883d210df8c6028aff475475a457d380353f9d01877d51cc01a17b2a91161d  acti
 RUN mkdir runner
 RUN tar xzf actions-runner.tar.gz -C runner
 RUN rm actions-runner.tar.gz
+USER 0
+RUN runner/bin/installdependencies.sh
+USER 1000
 
 # Build health probe
 RUN mkdir /home/user/runner/manager-build

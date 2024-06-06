@@ -26,7 +26,8 @@ async fn launch_runner(config: &Config) -> Result<()> {
     // Fetch creation token
     let creation_token = github::get_creation_token(config).await?;
     // Configure runner
-    let mut config_handle = Command::new("runner/config.sh")
+    let mut config_handle = Command::new("./config.sh")
+		.current_dir("runner/")
         .arg("--url")
         .arg(org_url)
         .arg("--token")
@@ -40,7 +41,9 @@ async fn launch_runner(config: &Config) -> Result<()> {
         bail!("could not configure runner");
     }
     // Run
-    let mut run_handle = Command::new("runner/run.sh").spawn()?;
+    let mut run_handle = Command::new("./run.sh")
+		.current_dir("runner/")
+		.spawn()?;
     run_handle.wait().await?;
     Ok(())
 }
