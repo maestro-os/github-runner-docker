@@ -32,6 +32,9 @@ RUN cargo install mdbook
 # Install runner
 RUN curl -o actions-runner.tar.gz -L https://github.com/actions/runner/releases/download/v2.316.1/actions-runner-linux-x64-2.316.1.tar.gz
 RUN echo "d62de2400eeeacd195db91e2ff011bfb646cd5d85545e81d8f78c436183e09a8  actions-runner.tar.gz" | shasum -a 256 -c
+RUN mkdir runner
+RUN tar xzf actions-runner.tar.gz -C runner
+RUN rm actions-runner.tar.gz
 
 # Build health probe
 RUN mkdir /home/user/runner/manager-build
@@ -47,10 +50,8 @@ USER 1000
 
 # Run
 ARG GITHUB_ACCESS_TOKEN
-ARG GITHUB_USER
-ARG REPOS
+ARG GITHUB_ORG
 ENV GITHUB_ACCESS_TOKEN=$GITHUB_ACCESS_TOKEN
-ENV GITHUB_USER=$GITHUB_USER
-ENV REPOS=$REPOS
+ENV GITHUB_ORG=$GITHUB_ORG
 EXPOSE 8080
 ENTRYPOINT ["./manager"]

@@ -2,81 +2,69 @@ use anyhow::bail;
 use anyhow::Result;
 use axum::routing::get;
 use axum::Router;
-use config::Config;
-use std::fs;
-use std::io;
-use std::io::Write;
-use std::path::PathBuf;
-use std::process::Command;
+use serde::Deserialize;
+use std::process::exit;
 use std::process::Stdio;
+use tokio::io::AsyncWriteExt;
+use tokio::process::Command;
+use tracing::error;
 use tracing::info;
 
-mod config;
 mod github;
 
-async fn launch_runners(config: &Config) -> Result<()> {
-    // Cleanup if runners already exist
-    let res = fs::remove_dir_all("runners/");
-    match res {
-        Err(e) if e.kind() != io::ErrorKind::NotFound => bail!(e),
-        _ => {}
+#[derive(Deserialize)]
+pub struct Config {
+    pub github_access_token: String,
+    pub github_org: String,
+}
+
+async fn launch_runner(config: &Config) -> Result<()> {
+    // Create runner
+    let org_url = format!("https://github.com/{user}", user = config.github_org);
+    info!("configure runner for organization `{org_url}`");
+    // Fetch creation token
+    let creation_token = github::get_creation_token(config).await?;
+    // Configure runner
+    let mut config_handle = Command::new("runner/config.sh")
+        .arg("--url")
+        .arg(org_url)
+        .arg("--token")
+        .arg(creation_token)
+        .stdin(Stdio::piped())
+        .spawn()?;
+    let config_stdin = config_handle.stdin.as_mut().unwrap();
+    config_stdin.write_all(&[b'\n'; 5]).await?;
+    let status = config_handle.wait().await?;
+    if !status.success() {
+        bail!("could not configure runner");
     }
-    // Create runners
-    for repo in &config.repos {
-        let repo_url = format!(
-            "https://github.com/{user}/{repo}",
-            user = config.github_user
-        );
-        info!("configure runner for repository `{repo_url}`");
-        let path = PathBuf::from(format!("runners/{repo}"));
-        fs::create_dir_all(&path)?;
-        // Unzip
-        let status = Command::new("tar")
-            .arg("xzf")
-            .arg("actions-runner.tar.gz")
-            .arg("-C")
-			.arg(&path)
-            .status()
-            .unwrap();
-        if !status.success() {
-            // TODO
-            todo!()
-        }
-        // Fetch creation token
-        let creation_token = github::get_creation_token(config, repo).await?;
-        // Configure runner
-        let mut config_handle = Command::new(path.join("config.sh"))
-            .arg("--url")
-            .arg(repo_url)
-            .arg("--token")
-            .arg(creation_token)
-            .stdin(Stdio::piped())
-            .spawn()?;
-        let config_stdin = config_handle.stdin.as_mut().unwrap();
-        config_stdin.write_all(&[b'\n'; 5])?;
-        let status = config_handle.wait()?;
-        if !status.success() {
-            // TODO
-            todo!()
-        }
-        // Run
-        tokio::spawn(async move {
-            let mut _cmd_handle = Command::new(path.join("run.sh")).spawn().unwrap();
-            // TODO on failure, re-run
-        });
-    }
+    // Run
+    let mut run_handle = Command::new("runner/run.sh").spawn()?;
+    run_handle.wait().await?;
     Ok(())
 }
 
-#[tokio::main]
+#[tokio::main(flavor = "current_thread")]
 async fn main() {
     let config: Config = envy::from_env().unwrap();
-    launch_runners(&config).await.unwrap();
     let app = Router::new()
         .route("/", get(health))
         .route("/health", get(health));
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8080").await.unwrap();
-    axum::serve(listener, app).await.unwrap();
+    let res = tokio::select! {
+        res = launch_runner(&config) => res,
+        res = async {
+            axum::serve(listener, app).await?;
+            Ok(())
+        } => res,
+    };
+    match res {
+        Ok(_) => info!("exiting without failure"),
+        Err(error) => {
+            error!(%error, "runner failure");
+            exit(1);
+        }
+    }
 }
 
 async fn health() -> &'static str {

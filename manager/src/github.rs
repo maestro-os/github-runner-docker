@@ -12,9 +12,11 @@ struct GithubRegistrationToken {
     token: String,
 }
 
-pub async fn get_creation_token(config: &Config, repo: &str) -> Result<String> {
-    let url =
-        format!("https://api.github.com/repos/{owner}/{repo}/actions/runners/registration-token", owner = config.github_user);
+pub async fn get_creation_token(config: &Config) -> Result<String> {
+    let url = format!(
+        "https://api.github.com/orgs/{owner}/actions/runners/registration-token",
+        owner = config.github_org
+    );
     let client = reqwest::Client::new();
     let body: GithubRegistrationToken = client
         .post(url)
