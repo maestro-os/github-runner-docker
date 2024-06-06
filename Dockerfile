@@ -30,8 +30,8 @@ RUN cargo install mdbook
 # TODO
 
 # Install runner
-RUN curl -o actions-runner.tar.gz -L https://github.com/actions/runner/releases/download/v2.316.1/actions-runner-linux-x64-2.316.1.tar.gz
-RUN echo "d62de2400eeeacd195db91e2ff011bfb646cd5d85545e81d8f78c436183e09a8  actions-runner.tar.gz" | shasum -a 256 -c
+RUN curl -o actions-runner.tar.gz -L  https://github.com/actions/runner/releases/download/v2.317.0/actions-runner-linux-x64-2.317.0.tar.gz
+RUN echo "9e883d210df8c6028aff475475a457d380353f9d01877d51cc01a17b2a91161d  actions-runner.tar.gz" | shasum -a 256 -c
 RUN mkdir runner
 RUN tar xzf actions-runner.tar.gz -C runner
 RUN rm actions-runner.tar.gz
