@@ -27,7 +27,7 @@ async fn launch_runner(config: &Config) -> Result<()> {
     let creation_token = github::get_creation_token(config).await?;
     // Configure runner
     let mut config_handle = Command::new("./config.sh")
-		.current_dir("runner/")
+        .current_dir("runner/")
         .arg("--url")
         .arg(org_url)
         .arg("--token")
@@ -42,8 +42,9 @@ async fn launch_runner(config: &Config) -> Result<()> {
     }
     // Run
     let mut run_handle = Command::new("./run.sh")
-		.current_dir("runner/")
-		.spawn()?;
+        .current_dir("runner/")
+        .env_remove("GITHUB_ACCESS_TOKEN")
+        .spawn()?;
     run_handle.wait().await?;
     Ok(())
 }

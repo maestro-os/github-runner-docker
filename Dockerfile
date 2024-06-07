@@ -8,26 +8,40 @@ RUN apt install -y \
 	clang \
 	curl \
 	git \
+	grub \
 	libicu-dev \
 	libssl-dev \
 	lld \
 	perl \
 	pkg-config \
-	qemu
+	qemu-system \
+	texinfo \
+	xorriso
 # Prepare
 RUN mkdir /home/user
 RUN chown 1000:1000 /home/user
 USER 1000
 ENV HOME=/home/user
-RUN mkdir /home/user/runner
-WORKDIR /home/user/runner
 # Install Rust
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/home/user/.cargo/bin:${PATH}"
 RUN cargo install mdbook
+WORKDIR /home/user
 
-# Install build toolchain
-# TODO
+# Build linker
+RUN mkdir ld-build
+WORKDIR /home/user/ld-build
+RUN curl -o binutils.tar.gz https://ftp.gnu.org/gnu/binutils/binutils-2.42.tar.gz
+RUN tar xzf binutils.tar.gz
+RUN rm binutils.tar.gz
+ADD binutils-build.sh .
+RUN ./binutils-build.sh
+# Install and cleanup
+USER 0
+RUN make install
+WORKDIR /home/user
+RUN rm -rf ld-build/
+USER 1000
 
 # Install runner
 RUN curl -o actions-runner.tar.gz -L  https://github.com/actions/runner/releases/download/v2.317.0/actions-runner-linux-x64-2.317.0.tar.gz
@@ -39,16 +53,22 @@ USER 0
 RUN runner/bin/installdependencies.sh
 USER 1000
 
-# Build health probe
-RUN mkdir /home/user/runner/manager-build
-ADD ./manager /home/user/runner/manager-build
-WORKDIR /home/user/runner/manager-build
+# Build manager
+RUN mkdir manager-build
+ADD ./manager manager-build
+WORKDIR /home/user/manager-build
 RUN cargo build --release
 RUN cp target/release/manager ..
-WORKDIR /home/user/runner
+WORKDIR /home/user
 # Cleanup
 USER 0
-RUN rm -rf /home/user/runner/manager-build
+RUN rm -rf manager-build/
+USER 1000
+
+# Remove unused packages
+USER 0
+RUN apt remove -y curl perl pkg-config texinfo
+RUN apt clean
 USER 1000
 
 # Run
