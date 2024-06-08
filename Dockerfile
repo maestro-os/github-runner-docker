@@ -7,9 +7,7 @@ RUN apt install -y \
 	build-essential \
 	clang \
 	curl \
-	git \
-	grub \
-	libicu-dev \
+	grub-pc-bin \
 	libssl-dev \
 	lld \
 	perl \
