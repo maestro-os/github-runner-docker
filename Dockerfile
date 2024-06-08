@@ -23,6 +23,7 @@ ENV HOME=/home/user
 # Install Rust
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/home/user/.cargo/bin:${PATH}"
+RUN rustup target add i686-unknown-linux-musl
 RUN cargo install mdbook
 WORKDIR /home/user
 
