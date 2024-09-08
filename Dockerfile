@@ -66,7 +66,7 @@ USER 1000
 
 # Remove unused packages
 USER 0
-RUN apt remove -y curl perl texinfo
+RUN apt remove -y curl texinfo
 RUN apt clean
 USER 1000
 
