@@ -24,10 +24,12 @@ ENV HOME=/home/user
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/home/user/.cargo/bin:${PATH}"
 RUN rustup target add i686-unknown-linux-musl
+RUN rustup target add x86_64-unknown-linux-musl
 RUN cargo install mdbook
 WORKDIR /home/user
 
 # Build linker
+USER 0
 RUN mkdir ld-build
 WORKDIR /home/user/ld-build
 RUN curl -o binutils.tar.gz https://ftp.gnu.org/gnu/binutils/binutils-2.43.tar.gz
@@ -35,9 +37,6 @@ RUN tar xzf binutils.tar.gz
 RUN rm binutils.tar.gz
 ADD binutils-build.sh .
 RUN ./binutils-build.sh
-# Install and cleanup
-USER 0
-RUN make install
 WORKDIR /home/user
 RUN rm -rf ld-build/
 USER 1000
