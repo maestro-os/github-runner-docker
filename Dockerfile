@@ -23,7 +23,7 @@ ENV HOME=/home/user
 # Install Rust
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/home/user/.cargo/bin:${PATH}"
-RUN cargo install mdbook
+RUN cargo install mdbook mdbook-mermaid
 WORKDIR /home/user
 
 # Build linker
