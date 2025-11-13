@@ -1,9 +1,9 @@
 FROM debian:12.12-slim
 
-RUN \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+	--mount=type=cache,target=/var/lib/apt,sharing=locked \
 	# Install packages
-	apt update \
-	&& apt install -y \
+	apt update && apt-get --no-install-recommends install -y \
 	bash \
 	build-essential \
 	clang \
