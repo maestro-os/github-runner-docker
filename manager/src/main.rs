@@ -53,7 +53,8 @@ async fn launch_runner(config: &Config) -> Result<()> {
 async fn main() {
     env::set_var("RUST_LOG", "info");
     tracing_subscriber::fmt::init();
-    let config: Config = envy::from_env().unwrap();
+    let config: Config = envy::from_env()
+        .expect("Missing environment variable(s). Please set GITHUB_ACCESS_TOKEN and GITHUB_ORG.");
     let app = Router::new()
         .route("/", get(health))
         .route("/health", get(health));
