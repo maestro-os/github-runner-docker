@@ -1,4 +1,4 @@
-FROM debian:12.7-slim
+FROM debian:12.12-slim
 
 # Install packages
 RUN apt update
@@ -30,7 +30,7 @@ WORKDIR /home/user
 USER 0
 RUN mkdir ld-build
 WORKDIR /home/user/ld-build
-RUN curl -o binutils.tar.gz https://ftp.gnu.org/gnu/binutils/binutils-2.44.tar.gz
+RUN curl -o binutils.tar.gz https://ftp.gnu.org/gnu/binutils/binutils-2.45.tar.gz
 RUN tar xzf binutils.tar.gz
 RUN rm binutils.tar.gz
 ADD binutils-build.sh .
@@ -40,8 +40,8 @@ RUN rm -rf ld-build/
 USER 1000
 
 # Install runner
-RUN curl -o actions-runner.tar.gz -L https://github.com/actions/runner/releases/download/v2.322.0/actions-runner-linux-x64-2.322.0.tar.gz
-RUN echo "b13b784808359f31bc79b08a191f5f83757852957dd8fe3dbfcc38202ccf5768  actions-runner.tar.gz" | shasum -a 256 -c
+RUN curl -o actions-runner.tar.gz -L https://github.com/actions/runner/releases/download/v2.329.0/actions-runner-linux-x64-2.329.0.tar.gz
+RUN echo "194f1e1e4bd02f80b7e9633fc546084d8d4e19f3928a324d512ea53430102e1d  actions-runner.tar.gz" | shasum -a 256 -c
 RUN mkdir runner
 RUN tar xzf actions-runner.tar.gz -C runner
 RUN rm actions-runner.tar.gz
