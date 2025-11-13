@@ -1,4 +1,4 @@
-FROM debian:12.12-slim
+FROM rust:1.91.1-slim-trixie
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	--mount=type=cache,target=/var/lib/apt,sharing=locked \
@@ -23,9 +23,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 
 USER 1000
 ENV HOME=/home/user
-# Install Rust
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
-ENV PATH="/home/user/.cargo/bin:${PATH}"
 RUN cargo install mdbook mdbook-mermaid
 WORKDIR /home/user
 
