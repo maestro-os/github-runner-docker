@@ -30,30 +30,28 @@ WORKDIR /home/user
 USER 0
 RUN mkdir ld-build
 WORKDIR /home/user/ld-build
+COPY binutils-build.sh .
 RUN \
 	curl -o binutils.tar.gz https://ftp.gnu.org/gnu/binutils/binutils-2.45.tar.gz \
 	&& tar xzf binutils.tar.gz \
-	&& rm binutils.tar.gz
-ADD binutils-build.sh .
-RUN ./binutils-build.sh
+	&& rm binutils.tar.gz \
+	&& ./binutils-build.sh
 WORKDIR /home/user
 RUN rm -rf ld-build/
 USER 1000
 
 # Install runner
-RUN \
-	curl -o actions-runner.tar.gz -L https://github.com/actions/runner/releases/download/v2.329.0/actions-runner-linux-x64-2.329.0.tar.gz \
-	&& echo "194f1e1e4bd02f80b7e9633fc546084d8d4e19f3928a324d512ea53430102e1d  actions-runner.tar.gz" | shasum -a 256 -c \
-	&& mkdir runner \
-	&& tar xzf actions-runner.tar.gz -C runner \
-	&& rm actions-runner.tar.gz
+ADD --checksum=sha256:194f1e1e4bd02f80b7e9633fc546084d8d4e19f3928a324d512ea53430102e1d \
+	https://github.com/actions/runner/releases/download/v2.329.0/actions-runner-linux-x64-2.329.0.tar.gz \
+	actions-runner.tar.gz
+RUN mkdir runner && tar xzf actions-runner.tar.gz -C runner && rm actions-runner.tar.gz
 USER 0
 RUN runner/bin/installdependencies.sh
 USER 1000
 
 # Build manager
 RUN mkdir manager-build
-ADD ./manager manager-build
+COPY ./manager manager-build
 WORKDIR /home/user/manager-build
 RUN cargo build --release && cp target/release/manager ..
 WORKDIR /home/user
