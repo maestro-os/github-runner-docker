@@ -29,9 +29,9 @@ WORKDIR /home/user
 RUN mkdir ld-build
 WORKDIR /home/user/ld-build
 COPY binutils-build.sh .
+ADD https://ftp.gnu.org/gnu/binutils/binutils-2.45.tar.gz binutils.tar.gz
 RUN \
-	curl -o binutils.tar.gz https://ftp.gnu.org/gnu/binutils/binutils-2.45.tar.gz \
-	&& tar xzf binutils.tar.gz \
+	tar xzf binutils.tar.gz \
 	&& rm binutils.tar.gz \
 	&& ./binutils-build.sh
 WORKDIR /home/user
