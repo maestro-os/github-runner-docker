@@ -23,7 +23,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 # Build linker
 WORKDIR /home/user/ld-build
 COPY binutils-build.sh .
-ADD https://ftp.gnu.org/gnu/binutils/binutils-2.45.tar.gz binutils.tar.gz
+ADD https://ftp.gnu.org/gnu/binutils/binutils-2.45.1.tar.gz binutils.tar.gz
 RUN \
 	tar xzf binutils.tar.gz \
 	&& rm binutils.tar.gz \
