@@ -16,26 +16,21 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	qemu-system \
 	texinfo \
 	xorriso \
-	# ---
 	# Prepare 
 	&& mkdir /home/user \
-	&& chown 1000:1000 /home/user
-
-ENV HOME=/home/user
-RUN cargo install mdbook mdbook-mermaid
-WORKDIR /home/user
+	&& chown 1000:1000 /home/user \
+	&& cargo install mdbook mdbook-mermaid
 
 # Build linker
-RUN mkdir ld-build
 WORKDIR /home/user/ld-build
 COPY binutils-build.sh .
 ADD https://ftp.gnu.org/gnu/binutils/binutils-2.45.tar.gz binutils.tar.gz
 RUN \
 	tar xzf binutils.tar.gz \
 	&& rm binutils.tar.gz \
-	&& ./binutils-build.sh
-WORKDIR /home/user
-RUN rm -rf ld-build/
+	&& ./binutils-build.sh \
+	&& cd .. \
+	&& rm -rf ld-build/
 
 # Install runner
 ADD --checksum=sha256:194f1e1e4bd02f80b7e9633fc546084d8d4e19f3928a324d512ea53430102e1d \
@@ -48,21 +43,25 @@ RUN \
 	&& ./runner/bin/installdependencies.sh
 
 # Build manager
-RUN mkdir manager-build
-COPY ./manager manager-build
 WORKDIR /home/user/manager-build
-RUN cargo build --release && cp target/release/manager ..
-WORKDIR /home/user
-# Cleanup
-RUN rm -rf manager-build/ && apt remove -y curl texinfo && apt clean
+COPY ./manager .
+RUN \
+	cargo build --release \
+	&& cp target/release/manager .. \
+	# Cleanup
+	&& cd .. \
+	&& rm -rf manager-build/ \
+	&& apt remove -y curl texinfo \
+	&& apt clean
 
 # Final image
 FROM scratch
 COPY --from=builder / /
+EXPOSE 8080
 
 # Drop privileges
 USER 1000
 
 # Run
-EXPOSE 8080
+WORKDIR /home/user
 ENTRYPOINT ["./manager"]
