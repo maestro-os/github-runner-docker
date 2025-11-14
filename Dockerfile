@@ -7,7 +7,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	bash \
 	build-essential \
 	clang \
-	curl \
 	grub-pc-bin \
 	libssl-dev \
 	lld \
@@ -51,7 +50,7 @@ RUN \
 	# Cleanup
 	&& cd .. \
 	&& rm -rf manager-build/ \
-	&& apt remove -y curl texinfo \
+	&& apt remove -y texinfo \
 	&& apt clean
 
 # Final image
