@@ -1,7 +1,10 @@
+# Note: all buildkit related features (like cache mounts) are
+# disabled because CleverCloud is still on the legacy builder.
 FROM rust:1.91.1-slim-trixie AS builder
 
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-	--mount=type=cache,target=/var/lib/apt,sharing=locked \
+RUN \
+	# --mount=type=cache,target=/var/cache/apt,sharing=locked \
+	#--mount=type=cache,target=/var/lib/apt,sharing=locked \
 	# Install packages
 	apt update && apt-get --no-install-recommends install -y \
 	bash \
@@ -44,9 +47,10 @@ RUN \
 # Build manager
 WORKDIR /home/user/manager-build
 COPY ./manager .
-RUN --mount=type=cache,target=/home/user/manager-build/target \
-	--mount=type=cache,target=/usr/local/cargo/git/db \
-	--mount=type=cache,target=/usr/local/cargo/registry/ \
+RUN \
+	# --mount=type=cache,target=/home/user/manager-build/target \
+	# --mount=type=cache,target=/usr/local/cargo/git/db \
+	# --mount=type=cache,target=/usr/local/cargo/registry/ \
 	cargo build --release \
 	&& cp target/release/manager ..
 
