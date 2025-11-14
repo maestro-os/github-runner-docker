@@ -44,7 +44,9 @@ RUN \
 # Build manager
 WORKDIR /home/user/manager-build
 COPY ./manager .
-RUN \
+RUN --mount=type=cache,target=/home/user/manager-build/target \
+	--mount=type=cache,target=/usr/local/cargo/git/db \
+	--mount=type=cache,target=/usr/local/cargo/registry/ \
 	cargo build --release \
 	&& cp target/release/manager .. \
 	# Cleanup
