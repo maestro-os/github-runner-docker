@@ -48,10 +48,13 @@ RUN --mount=type=cache,target=/home/user/manager-build/target \
 	--mount=type=cache,target=/usr/local/cargo/git/db \
 	--mount=type=cache,target=/usr/local/cargo/registry/ \
 	cargo build --release \
-	&& cp target/release/manager .. \
-	# Cleanup
-	&& cd .. \
-	&& rm -rf manager-build/ \
+	&& cp target/release/manager ..
+
+# Cleanup
+# Note: different RUN layer because of docker layer caching
+# preventing from deleting the manager-build/target folder
+WORKDIR /home/user
+RUN	rm -rf manager-build/ \
 	&& apt remove -y texinfo \
 	&& apt clean
 
