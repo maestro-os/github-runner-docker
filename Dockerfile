@@ -32,7 +32,9 @@ WORKDIR /home/user/runner
 ADD --checksum=sha256:194f1e1e4bd02f80b7e9633fc546084d8d4e19f3928a324d512ea53430102e1d \
 	--unpack=true \
 	https://github.com/actions/runner/releases/download/v2.329.0/actions-runner-linux-x64-2.329.0.tar.gz .
-RUN ./bin/installdependencies.sh
+RUN ./bin/installdependencies.sh \
+	# cleanup
+	&& rm -rf ../ld-build
 
 # Final image
 FROM prepare-final
@@ -43,17 +45,12 @@ EXPOSE 8080
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	--mount=type=cache,target=/var/lib/apt,sharing=locked \
 	chown -R 1000:1000 . \
-	# GH runner dependencies
-	&& apt-get --no-install-recommends install -y libssl-dev \
 	# CI tools
 	&& cargo install mdbook mdbook-mermaid \
 	&& apt update && apt-get --no-install-recommends install -y \
-	build-essential \
 	clang \
 	grub-pc-bin \
 	lld \
-	perl \
-	pkg-config \
 	qemu-system \
 	xorriso
 
