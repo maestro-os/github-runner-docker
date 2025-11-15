@@ -14,11 +14,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	pkg-config \
 	qemu-system \
 	texinfo \
-	xorriso \
-	# Prepare 
-	&& mkdir /home/user \
-	&& chown 1000:1000 /home/user \
-	&& cargo install mdbook mdbook-mermaid
+	xorriso
 
 # Build linker
 WORKDIR /home/user/ld-build
@@ -55,9 +51,11 @@ FROM scratch
 COPY --from=builder / /
 EXPOSE 8080
 
+WORKDIR /home/user
+RUN chown 1000:1000 . && cargo install mdbook mdbook-mermaid
+
 # Drop privileges
 USER 1000
 
 # Run
-WORKDIR /home/user
 ENTRYPOINT ["./manager"]
