@@ -25,11 +25,12 @@ ADD --unpack=true https://ftp.gnu.org/gnu/binutils/binutils-2.45.1.tar.gz .
 RUN ./binutils-build.sh && cd .. && rm -rf ld-build/
 
 # Install runner
+WORKDIR /home/user/runner
 ADD --checksum=sha256:194f1e1e4bd02f80b7e9633fc546084d8d4e19f3928a324d512ea53430102e1d \
 	--unpack=true \
 	https://github.com/actions/runner/releases/download/v2.329.0/actions-runner-linux-x64-2.329.0.tar.gz \
-	runner/
-RUN ./runner/bin/installdependencies.sh
+	.
+RUN ./bin/installdependencies.sh
 
 # Build manager
 WORKDIR /home/user/manager-build
