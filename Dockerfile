@@ -1,4 +1,6 @@
-FROM rust:1.91.1-slim-trixie AS builder
+FROM rust:1.91.1-slim-trixie AS base
+
+FROM base AS builder
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	--mount=type=cache,target=/var/lib/apt,sharing=locked \
@@ -47,7 +49,7 @@ RUN	rm -rf manager-build/ \
 	&& apt clean
 
 # Final image
-FROM scratch
+FROM base
 COPY --from=builder / /
 EXPOSE 8080
 
