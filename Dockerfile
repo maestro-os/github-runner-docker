@@ -31,6 +31,7 @@ COPY binutils-build.sh .
 ADD --unpack=true https://ftp.gnu.org/gnu/binutils/binutils-2.45.1.tar.gz .
 RUN \
 	apt update && apt-get --no-install-recommends install -y \
+	build-essential \
 	texinfo \
 	&& ./binutils-build.sh
 
