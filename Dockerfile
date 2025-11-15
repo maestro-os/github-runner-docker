@@ -42,7 +42,7 @@ EXPOSE 8080
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	--mount=type=cache,target=/var/lib/apt,sharing=locked \
-	chown 1000:1000 . \
+	chown -R 1000:1000 . \
 	# GH runner dependencies
 	&& apt-get --no-install-recommends install -y libssl-dev \
 	# CI tools
