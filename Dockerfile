@@ -23,23 +23,15 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 # Build linker
 WORKDIR /home/user/ld-build
 COPY binutils-build.sh .
-ADD https://ftp.gnu.org/gnu/binutils/binutils-2.45.1.tar.gz binutils.tar.gz
-RUN \
-	tar xzf binutils.tar.gz \
-	&& rm binutils.tar.gz \
-	&& ./binutils-build.sh \
-	&& cd .. \
-	&& rm -rf ld-build/
+ADD --unpack=true https://ftp.gnu.org/gnu/binutils/binutils-2.45.1.tar.gz .
+RUN ./binutils-build.sh && cd .. && rm -rf ld-build/
 
 # Install runner
 ADD --checksum=sha256:194f1e1e4bd02f80b7e9633fc546084d8d4e19f3928a324d512ea53430102e1d \
+	--unpack=true \
 	https://github.com/actions/runner/releases/download/v2.329.0/actions-runner-linux-x64-2.329.0.tar.gz \
-	actions-runner.tar.gz
-RUN \ 
-	mkdir runner \
-	&& tar xzf actions-runner.tar.gz -C runner \
-	&& rm actions-runner.tar.gz \
-	&& ./runner/bin/installdependencies.sh
+	runner/
+RUN ./runner/bin/installdependencies.sh
 
 # Build manager
 WORKDIR /home/user/manager-build
