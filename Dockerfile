@@ -1,12 +1,5 @@
 FROM rust:1.91.1-slim-trixie AS base
 
-FROM base AS runner-build
-WORKDIR /runner
-ADD --checksum=sha256:194f1e1e4bd02f80b7e9633fc546084d8d4e19f3928a324d512ea53430102e1d \
-	--unpack=true \
-	https://github.com/actions/runner/releases/download/v2.329.0/actions-runner-linux-x64-2.329.0.tar.gz .
-RUN ./bin/installdependencies.sh
-
 FROM base AS manager-build
 
 # Build manager
@@ -35,10 +28,15 @@ RUN \
 	texinfo \
 	&& ./binutils-build.sh
 
+WORKDIR /home/user/runner
+ADD --checksum=sha256:194f1e1e4bd02f80b7e9633fc546084d8d4e19f3928a324d512ea53430102e1d \
+	--unpack=true \
+	https://github.com/actions/runner/releases/download/v2.329.0/actions-runner-linux-x64-2.329.0.tar.gz .
+RUN ./bin/installdependencies.sh
+
 # Final image
 FROM prepare-final
 WORKDIR /home/user
-COPY --from=runner-build runner/ runner/
 COPY --from=manager-build /manager-build/target/release/manager .
 EXPOSE 8080
 
